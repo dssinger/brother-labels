@@ -1,0 +1,2 @@
+#!/bin/bash
+./labels.py "$1" | sh

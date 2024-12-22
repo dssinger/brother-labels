@@ -23,7 +23,7 @@ else:
 
 # Get the font
 fontsize = args.size if args.size else args.height
-resize = 4
+resize = 1
 wanted = args.font
 if args.variation:
     wanted += ':' + ':'.join(args.variation)
@@ -38,8 +38,9 @@ size = (int(bigsize[0] / resize), int(bigsize[1] / resize))
 print(f'size = {size}', file=sys.stderr)
 bigimage = Image.new('RGB', bigsize, color=(255, 255, 255))
 draw = ImageDraw.Draw(bigimage)
+draw.fontmode = "L"
 draw.text((0, 0), text, font=font, fill=(0, 0, 0))
-image = bigimage.resize(size, Image.Resampling.LANCZOS)
+image = bigimage # .resize(size, Image.Resampling.LANCZOS)
 image.save('out.png')
 width = size[0]
 print(size, file=sys.stderr)

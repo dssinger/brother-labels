@@ -11,10 +11,13 @@ parser = argparse.ArgumentParser(description="Utility for printing on PT-2730")
 parser.add_argument('text', type=str, nargs='*')
 parser.add_argument('--height', type=int, help="height in pixels of loaded tape", default=84)
 parser.add_argument('--font', type=str, help="name of truetype font", default="Avenir Next Condensed")
-parser.add_argument('--size', type=int, default=30)
+parser.add_argument('--size', type=int, default=20)
 parser.add_argument('--variation', action='append')
 parser.add_argument('--printer', type=str, default='Brother_PT_2730')
+parser.add_argument('--feature', dest='features', action='append')
+parser.add_argument('--resize', dest='resize', type=int, default=100, help="Resizing factor (removes jaggies)")
 args = parser.parse_args()
+print(f'features: {args.features}', file=sys.stderr)
 
 if len(args.text) == 0:
     text = 'H,?!q'
@@ -23,7 +26,7 @@ else:
 
 # Get the font
 fontsize = args.size if args.size else args.height
-resize = 1
+resize = args.resize
 wanted = args.font
 if args.variation:
     wanted += ':' + ':'.join(args.variation)
@@ -32,14 +35,15 @@ print(fontinfo.file, fontinfo.index, file=sys.stderr)
 font = ImageFont.truetype(fontinfo.file, index=fontinfo.index, size=fontsize * resize)
 print(font, file=sys.stderr)
 
-left, top, right, bottom = font.getbbox(text)
+left, top, right, bottom = font.getbbox(text, mode='L')
 bigsize = (right - left, bottom)
 size = (int(bigsize[0] / resize), int(bigsize[1] / resize))
 print(f'size = {size}', file=sys.stderr)
 bigimage = Image.new('RGB', bigsize, color=(255, 255, 255))
 draw = ImageDraw.Draw(bigimage)
+draw.font = font
 draw.fontmode = "L"
-draw.text((0, 0), text, font=font, fill=(0, 0, 0))
+draw.text((0, 0), text, font=font, fill=(0, 0, 0), features=args.features)
 image = bigimage # .resize(size, Image.Resampling.LANCZOS)
 image.save('out.png')
 width = size[0]

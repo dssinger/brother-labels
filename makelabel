@@ -1,2 +1,1 @@
-#!/bin/bash
-./labels.py --variation "Demi Bold" --size 20 "$1" | sh
+./labels.py --variation "Bold" "$1" | sh

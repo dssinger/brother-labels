@@ -1,4 +1,5 @@
 echo
-echo "Use ./makelabel 'text' to print labels"
+export PATH="$PWD:$PATH"
+echo "Use makelabel 'text' to print labels"
 echo
 

@@ -15,9 +15,11 @@ parser.add_argument('--size', type=int, default=20)
 parser.add_argument('--variation', action='append')
 parser.add_argument('--printer', type=str, default='Brother_PT_2730')
 parser.add_argument('--feature', dest='features', action='append')
-parser.add_argument('--resize', dest='resize', type=int, default=100, help="Resizing factor (removes jaggies)")
+parser.add_argument('--resize', dest='resize', type=int, default=10, help="Resizing factor (removes jaggies)")
+parser.add_argument('--verbose', '--v', dest='verbose', action='store_true')
 args = parser.parse_args()
-print(f'features: {args.features}', file=sys.stderr)
+if args.verbose:
+    print(f'features: {args.features}', file=sys.stderr)
 
 if len(args.text) == 0:
     text = 'H,?!q'
@@ -31,14 +33,17 @@ wanted = args.font
 if args.variation:
     wanted += ':' + ':'.join(args.variation)
 fontinfo = fcmatch(wanted)
-print(fontinfo.file, fontinfo.index, file=sys.stderr)
+if args.verbose:
+    print(fontinfo.file, fontinfo.index, file=sys.stderr)
 font = ImageFont.truetype(fontinfo.file, index=fontinfo.index, size=fontsize * resize)
-print(font, file=sys.stderr)
+if args.verbose:
+    print(font, file=sys.stderr)
 
 left, top, right, bottom = font.getbbox(text, mode='L')
 bigsize = (right - left, bottom)
 size = (int(bigsize[0] / resize), int(bigsize[1] / resize))
-print(f'size = {size}', file=sys.stderr)
+if args.verbose:
+    print(f'size = {size}', file=sys.stderr)
 bigimage = Image.new('RGB', bigsize, color=(255, 255, 255))
 draw = ImageDraw.Draw(bigimage)
 draw.font = font
@@ -47,5 +52,6 @@ draw.text((0, 0), text, font=font, fill=(0, 0, 0), features=args.features)
 image = bigimage # .resize(size, Image.Resampling.LANCZOS)
 image.save('out.png')
 width = size[0]
-print(size, file=sys.stderr)
+if args.verbose:
+    print(size, file=sys.stderr)
 print(f'lpr -P "{args.printer}" -o media=12mm -o PageSize=Custom.28x{width} out.png')
